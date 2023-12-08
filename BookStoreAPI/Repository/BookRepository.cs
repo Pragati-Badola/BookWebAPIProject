@@ -135,5 +135,57 @@ namespace BookStoreAPI.Repository
             }
 
         }
+
+        public bool EditBook(int id, Book book)
+        {
+            using (SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+            {
+                using (SqlCommand command = new SqlCommand())
+                {
+                    command.CommandText = "[dbo].[EditBook]";
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.Add("@Id", SqlDbType.Int, 50).Value = id;
+                    command.Parameters.Add("@Title", SqlDbType.NVarChar, 50).Value = book.Title;
+                    command.Parameters.Add("@Description", SqlDbType.NVarChar, int.MaxValue).Value = book.Description;
+                    command.Parameters.Add("@IntStatus", SqlDbType.Int).Direction = ParameterDirection.Output;
+                    command.Parameters.Add("@OutStatus", SqlDbType.NVarChar, 50).Direction = ParameterDirection.Output;
+                    command.Connection = connection;
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                    string outStatus = command.Parameters["@OutStatus"].Value as string;
+                    int intStatus = (int)command.Parameters["@IntStatus"].Value;
+
+                    connection.Close();
+
+                    return intStatus > 0;
+                }
+            }
+        }
+        public bool DeleteBook(int id)
+        {
+            using (SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+            {
+                using (SqlCommand command = new SqlCommand())
+                {
+                    command.CommandText = "[dbo].[DeleteBook]";
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.Add("@Id", SqlDbType.Int, 50).Value = id;
+                    command.Parameters.Add("@IntStatus", SqlDbType.Int).Direction = ParameterDirection.Output;
+                    command.Parameters.Add("@OutStatus", SqlDbType.NVarChar, 50).Direction = ParameterDirection.Output;
+                    command.Connection = connection;
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                    string outStatus = command.Parameters["@OutStatus"].Value as string;
+                    int intStatus = (int)command.Parameters["@IntStatus"].Value;
+
+                    connection.Close();
+
+                    return intStatus > 0;
+                }
+
+            }
+
+        }
+
     }
 }

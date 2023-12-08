@@ -1,7 +1,11 @@
 ﻿using BookStoreAPI.Models;
 using BookStoreAPI.Repository;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System;
 
 namespace BookStoreAPI.Controllers
 {
@@ -10,9 +14,12 @@ namespace BookStoreAPI.Controllers
     {
         private readonly IBookRepository _bookRepository;
         private readonly ILogger<BooksController> _logger;
-        public BooksController(IBookRepository bookRepository, ILogger<BooksController> logger) {
+        private readonly IValidator<Book> _validator;
+
+        public BooksController(IBookRepository bookRepository, ILogger<BooksController> logger, IValidator<Book> validator) {
             _bookRepository = bookRepository;   
             _logger = logger;
+            _validator = validator;
         }
 
         [HttpGet]
@@ -49,6 +56,14 @@ namespace BookStoreAPI.Controllers
         [Route("AddBook")]
         public IActionResult AddNewBook(Book book)
         {
+            var result = _validator.Validate(book);
+
+            if (!result.IsValid)
+            {
+                result.AddToModelState(this.ModelState);
+                return ValidationProblem();
+            }
+
             try
             {
                 var response = _bookRepository.AddBook(book);
@@ -65,6 +80,60 @@ namespace BookStoreAPI.Controllers
             {
                 _logger.LogError($"Log from BooksController {ex.Message}");
                 return BadRequest("Failed to add book");
+            }
+        }
+
+        [HttpPut]
+        [Route("EditBook")]
+        public IActionResult EditBook(int id, Book book)
+        {
+            var result = _validator.Validate(book);
+
+            if (!result.IsValid)
+            {
+                result.AddToModelState(this.ModelState);
+                return ValidationProblem();
+            }
+
+            try
+            {
+                var response = _bookRepository.EditBook(id, book);
+                if (response.Equals(true))
+                {
+                    return Ok("Book updated successfully");
+                }
+                else
+                {
+                    return BadRequest("Failed to update book");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Log from BooksController {ex.Message}");
+                return BadRequest("Failed to update book");
+            }
+        }
+
+        [HttpDelete]
+        [Route("DeleteBook")]
+        public IActionResult DeleteBook(int id)
+        {
+            try
+            {
+                var response = _bookRepository.DeleteBook(id);
+                if (response.Equals(true))
+                {
+                    return Ok("Book deleted successfully");
+                }
+                else
+                {
+                    return BadRequest("Failed to delete book");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Log from BooksController {ex.Message}");
+                return BadRequest("Failed to delete book");
             }
         }
     }
