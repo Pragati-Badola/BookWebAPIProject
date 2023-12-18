@@ -102,6 +102,7 @@ namespace BookStoreAPI.Repository
                             }
                         }                  
                     }
+                    connection.Close();
                 }
 
             }

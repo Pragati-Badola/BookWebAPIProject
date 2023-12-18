@@ -11,6 +11,7 @@ using System.Reflection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using BookStoreAPI.Filters;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -40,8 +41,8 @@ var jwtKey = builder.Configuration.GetSection("Jwt:Key").Get<string>();
 
 
 builder.Services.AddSingleton<IJwtAuthenticationManager>(new JwtAuthenticationManager(jwtKey));
-    
-    
+
+
 // Add services to the container.
 
 //builder.Services.AddControllers(config =>
@@ -55,7 +56,14 @@ builder.Services.AddSingleton<IJwtAuthenticationManager>(new JwtAuthenticationMa
 //    // Automatic registration of validators in assembly
 //    options.RegisterValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 //}); 
+
 builder.Services.AddControllers();
+//builder.Services.AddControllers(options =>
+//{
+    //options.Filters.Add(new MySampleActionFilterAttribute("Global"));
+    //options.Filters.Add(new MySampleResourceFilterAttribute("Global"));
+    //options.Filters.AddService<MySampleResultFilterAttribute>();
+//});
 builder.Services.AddEndpointsApiExplorer();
 
 
@@ -97,6 +105,7 @@ builder.Services.AddScoped<IBookRepository, BookRepository>();
 builder.Services.AddSingleton<IActionResultExecutor<ObjectResult>, Response>();
 builder.Services.AddScoped<IValidator<Book>, BookValidator>();
 builder.Services.AddTransient<IGuidService, GuidService>();
+//builder.Services.AddSingleton<MySampleResultFilterAttribute>();
 
 
 var app = builder.Build();

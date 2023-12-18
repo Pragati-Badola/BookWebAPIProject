@@ -1,4 +1,5 @@
-﻿using BookStoreAPI.Models;
+﻿using BookStoreAPI.Filters;
+using BookStoreAPI.Models;
 using BookStoreAPI.Repository;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -10,6 +11,8 @@ using System;
 namespace BookStoreAPI.Controllers
 {
     [ApiController]
+    [MySampleAsyncActionFilter("BooksController")]
+
     public class BooksController : ControllerBase
     {
         private readonly IBookRepository _bookRepository;
@@ -24,6 +27,10 @@ namespace BookStoreAPI.Controllers
 
         [HttpGet]
         [Route("GetBooks")]
+        [MySampleResourceFilter("Books")]
+        [MySampleActionFilter("Books", -10)]
+        //[ServiceFilter(typeof(MySampleResultFilterAttribute))]
+        [TypeFilter(typeof(MySampleResultFilterAttribute), Arguments = new object[] {"Action"})]
         public IActionResult GetBooks()
         {
             try
@@ -39,6 +46,7 @@ namespace BookStoreAPI.Controllers
 
         [HttpGet]
         [Route("GetBookById")]
+        [MySampleAsyncActionFilter("BooksById")]
         public IActionResult GetBookById(int ID)
         {
             try

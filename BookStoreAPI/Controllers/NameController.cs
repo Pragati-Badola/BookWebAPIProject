@@ -8,7 +8,6 @@ using System.Text;
 
 namespace BookStoreAPI.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class NameController : Controller
@@ -19,13 +18,13 @@ namespace BookStoreAPI.Controllers
             this.jwtAuthenticationManager = jwtAuthenticationManager;
         }
 
-        [HttpGet]
+        [HttpGet, Authorize(Roles = "Manager")]
         public IActionResult Get()
         {
             return Ok(new string[] { "New York", "New Jersey" });
         }
 
-        [HttpGet("{id}", Name = "Get")]
+        [HttpGet("{id}", Name = "Get"), Authorize(Roles = "Operator")]
         public IActionResult Get(int id)
         {
             return Ok("New Jersey");
