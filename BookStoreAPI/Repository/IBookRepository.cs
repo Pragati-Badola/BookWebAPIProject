@@ -1,10 +1,12 @@
-﻿namespace BookStoreAPI.Repository
+﻿using BookStoreAPI.DataTransferObjects;
+
+namespace BookStoreAPI.Repository
 {
     public interface IBookRepository
     {
-        List<Models.Book> GetAllBooks();
+        List<BookDto> GetAllBooks();
 
-        Models.Book GetBookById(int id);
+        BookDto GetBookById(int id);
 
         bool AddBook(Models.Book book);
 

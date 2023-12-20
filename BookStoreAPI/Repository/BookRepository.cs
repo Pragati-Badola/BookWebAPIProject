@@ -1,4 +1,6 @@
-﻿using BookStoreAPI.Models;
+﻿using AutoMapper;
+using BookStoreAPI.DataTransferObjects;
+using BookStoreAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.ComponentModel;
@@ -12,15 +14,18 @@ namespace BookStoreAPI.Repository
     public class BookRepository : IBookRepository
     {
         private readonly IConfiguration _configuration;
+
+        private readonly IMapper _mapper;
         
-        public BookRepository(IConfiguration configuration)
+        public BookRepository(IConfiguration configuration, IMapper mapper)
         {
             _configuration = configuration;
+            _mapper = mapper;
         }
 
-        public List<Book> GetAllBooks()
+        public List<BookDto> GetAllBooks()
         {
-            List<Book> books = new List<Book>();
+            List<BookDto> books = new List<BookDto>();
 
             using (SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
             {
@@ -29,31 +34,14 @@ namespace BookStoreAPI.Repository
                     command.CommandText = "[dbo].[GetAllBooks]";
                     command.CommandType = CommandType.StoredProcedure;
                     command.Connection = connection;
-                    connection.Open();
-                    object data;
-                    
+                    connection.Open();                    
                     using(SqlDataReader reader = command.ExecuteReader())
                     {
                         if(reader.HasRows)
                         {
                             while (reader.Read())
                             {
-                                var book = new Book();
-                                data = reader.GetValue(reader.GetOrdinal(nameof(Book.Id)));
-                                if (data != null)
-                                {
-                                    book.Id =  (int)data;
-                                }
-                                data = reader.GetValue(reader.GetOrdinal(nameof(Book.Title)));
-                                if( data != null)
-                                {
-                                    book.Title = data.ToString();
-                                }
-                                data = reader.GetValue(reader.GetOrdinal(nameof(Book.Description)));
-                                if (data != null)
-                                {
-                                    book.Description = data.ToString();
-                                }
+                                BookDto book = _mapper.Map<BookDto>(reader);
                                 books.Add(book);
                             }
                         }
@@ -65,9 +53,9 @@ namespace BookStoreAPI.Repository
             return books;
         }
 
-        public Book GetBookById(int id)
+        public BookDto GetBookById(int id)
         {
-            Book book = new Book();
+            BookDto book = new BookDto();
 
             using (SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
             {
@@ -78,28 +66,12 @@ namespace BookStoreAPI.Repository
                     command.Parameters.Add("@ID", SqlDbType.Int).Value = id;
                     command.Connection = connection;
                     connection.Open();
-                    object data;
                     SqlDataReader reader = command.ExecuteReader();
                     if(reader.HasRows)
                     {
                         while (reader.Read())
                         {
-                            data = reader.GetValue(reader.GetOrdinal(nameof(Book.Id)));
-                            if (data != null)
-                            {
-                                book.Id = (int)data;
-                            }
-                            data = reader.GetValue(reader.GetOrdinal(nameof(Book.Title)));
-                            if (data != null)
-                            {
-                                book.Title = data.ToString();
-                            }
-
-                            data = reader.GetValue(reader.GetOrdinal(nameof(Book.Description)));
-                            if (data != null)
-                            {
-                                book.Description = data.ToString();
-                            }
+                            book = _mapper.Map<BookDto>(reader);
                         }                  
                     }
                     connection.Close();

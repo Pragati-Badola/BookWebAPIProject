@@ -27,10 +27,10 @@ namespace BookStoreAPI.Controllers
 
         [HttpGet]
         [Route("GetBooks")]
-        [MySampleResourceFilter("Books")]
-        [MySampleActionFilter("Books", -10)]
+        //[MySampleResourceFilter("Books")]
+        //[MySampleActionFilter("Books", -10)]
         //[ServiceFilter(typeof(MySampleResultFilterAttribute))]
-        [TypeFilter(typeof(MySampleResultFilterAttribute), Arguments = new object[] {"Action"})]
+        //[TypeFilter(typeof(MySampleResultFilterAttribute), Arguments = new object[] {"Action"})]
         public IActionResult GetBooks()
         {
             try
@@ -46,7 +46,7 @@ namespace BookStoreAPI.Controllers
 
         [HttpGet]
         [Route("GetBookById")]
-        [MySampleAsyncActionFilter("BooksById")]
+        //[MySampleAsyncActionFilter("BooksById")]
         public IActionResult GetBookById(int ID)
         {
             try

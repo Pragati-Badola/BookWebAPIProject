@@ -20,25 +20,24 @@ var builder = WebApplication.CreateBuilder(args);
 //var jwtAudience = builder.Configuration.GetSection("Jwt:Audience").Get<string>();
 var jwtKey = builder.Configuration.GetSection("Jwt:Key").Get<string>();
 
-    builder.Services.AddAuthentication(x =>
+builder.Services.AddAuthentication(x =>
+{
+    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(
+    options =>
     {
-        x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    }).AddJwtBearer(
-        options =>
-        {
-        options.RequireHttpsMetadata = false;
-            options.SaveToken = true;
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.ASCII.GetBytes(jwtKey))
-            };
-        });
-
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.ASCII.GetBytes(jwtKey))
+        };
+    });
 
 builder.Services.AddSingleton<IJwtAuthenticationManager>(new JwtAuthenticationManager(jwtKey));
 
@@ -106,6 +105,7 @@ builder.Services.AddSingleton<IActionResultExecutor<ObjectResult>, Response>();
 builder.Services.AddScoped<IValidator<Book>, BookValidator>();
 builder.Services.AddTransient<IGuidService, GuidService>();
 //builder.Services.AddSingleton<MySampleResultFilterAttribute>();
+builder.Services.AddAutoMapper(typeof(Program));
 
 
 var app = builder.Build();
