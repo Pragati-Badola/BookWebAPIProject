@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BookStoreAPI.Controllers;
 using BookStoreAPI.DataTransferObjects;
 using BookStoreAPI.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -16,14 +17,16 @@ namespace BookStoreAPI.Repository
         private readonly IConfiguration _configuration;
 
         private readonly IMapper _mapper;
-        
-        public BookRepository(IConfiguration configuration, IMapper mapper)
+        private readonly ILogger<BookRepository> _logger;
+
+        public BookRepository(IConfiguration configuration, IMapper mapper, ILogger<BookRepository> logger)
         {
             _configuration = configuration;
             _mapper = mapper;
+            _logger = logger;
         }
 
-        public List<BookDto> GetAllBooks()
+        public List<BookDto> GetAllBooks(string searchValue, int pageNo, int pageSize, string sortColumn, string sortOrder)
         {
             List<BookDto> books = new List<BookDto>();
 
@@ -31,8 +34,14 @@ namespace BookStoreAPI.Repository
             {
                 using(SqlCommand command = new SqlCommand())
                 {
-                    command.CommandText = "[dbo].[GetAllBooks]";
+                    command.CommandText = "[dbo].[GetAllBooksPaginated]";
                     command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.Add("@SearchValue", SqlDbType.NVarChar).Value = searchValue;
+                    command.Parameters.Add("@PageNo", SqlDbType.Int).Value = pageNo;
+                    command.Parameters.Add("@PageSize", SqlDbType.Int).Value = pageSize;
+                    command.Parameters.Add("@SortColumn", SqlDbType.NVarChar).Value = sortColumn;
+                    command.Parameters.Add("@SortOrder", SqlDbType.NVarChar).Value = sortOrder;
+
                     command.Connection = connection;
                     connection.Open();                    
                     using(SqlDataReader reader = command.ExecuteReader())
@@ -46,6 +55,7 @@ namespace BookStoreAPI.Repository
                             }
                         }
                     }
+                    connection.Close();
                 }
 
             }

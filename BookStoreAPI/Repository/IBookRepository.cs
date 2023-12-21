@@ -4,7 +4,7 @@ namespace BookStoreAPI.Repository
 {
     public interface IBookRepository
     {
-        List<BookDto> GetAllBooks();
+        List<BookDto> GetAllBooks(string searchValue, int pageNo, int pageSize, string sortColumn, string sortOrder);
 
         BookDto GetBookById(int id);
 

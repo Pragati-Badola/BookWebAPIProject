@@ -31,11 +31,11 @@ namespace BookStoreAPI.Controllers
         //[MySampleActionFilter("Books", -10)]
         //[ServiceFilter(typeof(MySampleResultFilterAttribute))]
         //[TypeFilter(typeof(MySampleResultFilterAttribute), Arguments = new object[] {"Action"})]
-        public IActionResult GetBooks()
+        public IActionResult GetBooks(string searchValue, int pageNo, int pageSize, string sortColumn, string sortOrder)
         {
             try
             {
-                return Ok(_bookRepository.GetAllBooks());
+                return Ok(_bookRepository.GetAllBooks(searchValue, pageNo, pageSize, sortColumn, sortOrder));
             }
             catch (Exception ex)
             {
